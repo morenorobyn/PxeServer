@@ -1,0 +1,94 @@
+# site.yml
+---
+- hosts: Dhcp
+  tasks: 
+  - name: Ensure dhcp is installed
+    package:
+      name:
+        - dhcp-server
+      state: present
+  - name: Copy settings
+    template:
+      src: dhcpd.conf.j2
+      dest: /etc/dhcp/dhcpd.conf
+  - name: enable dhcp
+    service:
+      name: dhcpd
+      enabled: yes
+  - name: start dhcp service
+    service:
+      name: dhcpd
+      state: started
+  # - name: Setup firewall
+  #   raw: firewall-cmd --permanent --add-service={dhcp,proxy-dhcp}
+  # - name: Reload firewall
+  #   raw: firewall-cmd --reload
+
+
+- hosts: tfps
+  tasks:
+  - name: ensure tftp server is installed
+    package:
+      name:
+        - tftp-server
+        - vsftpd
+        - syslinux
+  - name: enable tftp
+    service:
+      name: tftp
+      enabled: yes
+  - name: start tftp service
+    service:
+      name: tftp
+      state: started
+  - name: enable vsftpd
+    service:
+      name: vsftpd
+      enabled: yes
+  - name: start tftp service
+    service:
+      name: vsftpd
+      state: started
+  # - name: Setup firewall for tfps & ftp
+  #   raw: firewall-cmd --permanent --add-service={tftp,ftp}
+  # - name: Reload firewall
+  #   raw: firewall-cmd --reload
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/pxelinux.0
+      dest: /var/lib/tftpboot/
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/menu.c32
+      dest: /var/lib/tftpboot/
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/mboot.c32
+      dest: /var/lib/tftpboot/
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/chain.c32
+      dest: /var/lib/tftpboot/
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/libutil.c32
+      dest: /var/lib/tftpboot/
+  - name: copy bootloaders to tftpboot
+    copy:
+      src: /usr/share/syslinux/ldlinux.c32
+      dest: /var/lib/tftpboot/
+  - name: Create a directory if it does not exist
+    file:
+      path: /var/lib/tftpboot/pxelinux.cfg
+      state: directory
+  - name: Create a directory if it does not exist
+    file:
+      path: /var/lib/tftpboot/networkboot/rhel7
+      state: directory
+  - name: Create a directory if it does not exist
+    file:
+      path: /var/ftp/pub/rhel7
+      state: directory
+  
+  
+
